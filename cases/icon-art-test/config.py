@@ -11,7 +11,7 @@ if os.path.exists(os.environ['HOME'] + '/.acct'):
 else:
     compute_account = os.popen("id -gn").read().splitlines()[0]
 compute_host = 'daint'
-compute_queue = 'debug'  # 'normal' / 'debug'
+compute_queue = 'normal'  # 'normal' / 'debug'
 constraint = 'mc'  # 'mc' / 'gpu'
 
 target = 'icon-art'
@@ -27,7 +27,7 @@ path = os.path.realpath(__file__)
 casename = os.path.basename(os.path.dirname(path))
 
 # Root directory of the sourcecode of the chain (where run_chain.py is)
-chain_src_dir = os.getcwd()
+chain_src_dir = os.path.join('/scratch/snx3000/nponomar/processing_chain_python/', 'processing-chain')
 
 # Root directory of the working space of the chain
 work_root = os.path.join(chain_src_dir, 'work')
@@ -60,7 +60,7 @@ icontools_runjobs = [
 
 # Icontools executables
 #icontools_dir = '/project/s903/mjaehn/spack-install/daint/icontools/master/cce/ldcbgsjjzq2p73xbei7ws4wce5ivzxer/bin/'
-icontools_dir = '/scratch/snx3000/msteiner/spack-stages/daint/spack-stage-icontools-master-t524rnfa5sfyn4rbvarypyzwae4jg46d/spack-src/icontools'
+icontools_dir = '/scratch/snx3000/nponomar/spack-install/daint/icontools/c2sm-master/gcc/hv7e5pklc6hyntvowrgkywb6rrwzdevb/bin'
 iconremap_bin = os.path.join(icontools_dir, "iconremap")
 iconsub_bin = os.path.join(icontools_dir, "iconsub")
 
@@ -99,7 +99,7 @@ art_input_folder = os.path.join(input_root, 'ART')
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
-icon_bin = os.path.join(exe_dir, "icon-kit-art_20211018")
+icon_bin = os.path.join('/scratch/snx3000/nponomar/icon-art/', 'icon', 'bin', 'icon')
 
 # Namelists and slurm runscript templates
 icon_runjob = os.path.join(case_dir, 'icon_runjob.cfg')

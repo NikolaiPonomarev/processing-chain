@@ -25,6 +25,7 @@ def main(starttime, hstart, hstop, cfg):
         Object holding all user-configuration parameters as attributes
     """
 
+
     dest_modis = 'modis.nc'
     dest_vegetation = 'vegetation.nc'
     modis_dir = cfg.online_vprm_dir
@@ -42,4 +43,7 @@ def main(starttime, hstart, hstop, cfg):
     logging.info("Copying vegetation class fraction file from {} to {}".format(
         vegetation_dir, dest_dir))
     tools.copy_file(vegetation_data_nc, os.path.join(dest_dir,
-                                                     dest_vegetation))
+                                                 dest_vegetation))
+
+
+

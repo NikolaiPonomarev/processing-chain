@@ -1,0 +1,83 @@
+&parameter ! surface geopotential
+    name = "fis"
+    out_name = "GEOSP"
+    param_out =129
+/
+&parameter  ! geopotential ml
+    name      = "geopot"
+    out_name     = "GEOP_ML"
+    param_out           = 128
+/
+&parameter  ! temperature
+    name      = "temp"
+    out_name     = "T"
+    param_out = 130
+/
+&parameter  ! horiz. wind comp. u
+    name      = "u"
+    out_name     = "U"
+/
+&parameter  ! horiz. wind comp. u
+    name      = "v"
+    out_name     = "V"
+/
+&parameter  ! vertical velocity
+    name      = "w"
+    out_name     = "W"
+    param_out           = 135
+/
+&parameter  ! specific humidity
+ name      = "qv"
+ out_name     = "QV"
+ param_out           = 133
+/
+&parameter  ! cloud liquid water content
+    name      = "qc"
+    out_name     = "QC"
+    param_out           = 246
+/
+&parameter  ! cloud ice water content
+    name      = "qi"
+    out_name     = "QI"
+    param_out      = 247
+/
+&parameter  ! rain water content
+    name      = "qr"
+    out_name     = "QR"
+    param_out    = 75 
+/
+&parameter  ! snow water content
+    name      = "qs"
+    out_name     = "QS" 
+    param_out     = 76
+/
+&parameter  ! virtual_potential_temperature
+    name      = "theta_v"
+    out_name     = "THETA_V" 
+    
+/
+&parameter  ! air_density
+    name      = "rho"
+    out_name     = "DEN" 
+    
+/
+&parameter  ! geometric_height_at_half_level_center
+    name      = "z_ifc"
+    out_name     = "HHL" 
+    
+/
+&parameter ! air_pressure
+    name = "pres"
+    out_name = "PS"  
+/
+&parameter
+    name      = "TRCH4_chemtr"
+    out_name     = "TRCH4_chemtr"
+    param_out     = 255    
+/
+&parameter
+    name      = "TRCO2_chemtr"
+    out_name     = "TRCO2_chemtr"
+    param_out     = 255
+    
+/

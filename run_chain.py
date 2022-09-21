@@ -234,9 +234,7 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
         If True will do job regardless of completion status
     """
     # Read mail address
-    if os.environ['USER'] == 'jenkins':
-        mail_address = None
-    elif os.path.exists(os.environ['HOME'] + '/.forward'):
+    if os.path.exists(os.environ['HOME'] + '/.forward'):
         with open(os.environ['HOME'] + '/.forward', 'r') as file:
             mail_address = file.read().rstrip()
     else:
@@ -245,11 +243,13 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
     # ini date and forecast time (ignore meteo times)
     inidate = int((start_time - datetime(1970, 1, 1)).total_seconds())
     inidate_yyyymmddhh = start_time.strftime('%Y%m%d%H')
+    inidate_yyyymmddThh = start_time.strftime('%Y%m%dT%H')
     inidate_yyyymmdd_hh = start_time.strftime('%Y%m%d_%H')
     inidate_yyyymmddhhmmss = start_time.strftime('%Y%m%d%H%M%S')
     forecasttime = '%d' % (hstop - hstart)
     setattr(cfg, 'inidate', inidate)
     setattr(cfg, 'inidate_yyyymmddhh', inidate_yyyymmddhh)
+    setattr(cfg, 'inidate_yyyymmddThh', inidate_yyyymmddThh)
     setattr(cfg, 'inidate_yyyymmdd_hh', inidate_yyyymmdd_hh)
     setattr(cfg, 'inidate_yyyymmddhhmmss', inidate_yyyymmddhhmmss)
     setattr(cfg, 'hstart', hstart)
@@ -307,12 +307,19 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
             os.path.join(chain_root, 'cosmo', 'output_reduced'))
 
     # ICON
+    default_case = False
+    default_name = ''
+    Init_from_ICON_str = getattr(cfg, 'Init_from_ICON', default_case)
+    init_name_5 = getattr(cfg, 'init_name_5', default_name)
+
     setattr(cfg, 'icon_base', os.path.join(chain_root, 'icon'))
     setattr(cfg, 'icon_input', os.path.join(chain_root, 'icon', 'input'))
     setattr(cfg, 'icon_input_icbc',
             os.path.join(chain_root, 'icon', 'input', 'icbc'))
     setattr(cfg, 'icon_input_oae',
             os.path.join(chain_root, 'icon', 'input', 'oae'))
+    setattr(cfg, 'icon_input_vprm',
+            os.path.join(chain_root, 'icon', 'input', 'vprm'))
     setattr(cfg, 'icon_input_grid',
             os.path.join(chain_root, 'icon', 'input', 'grid'))
     setattr(cfg, 'icon_input_mapping',
@@ -380,6 +387,9 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
             cfg, 'oae_vertical_profiles_nc_scratch',
             os.path.join(cfg.icon_input_oae,
                          os.path.basename(cfg.oae_vertical_profiles_nc)))
+        
+
+
         if hasattr(cfg, 'oae_hourofday_nc'):
             setattr(
                 cfg, 'oae_hourofday_nc_scratch',
@@ -417,9 +427,27 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
             setattr(
                 cfg, 'oae_ens_lambda_nc_scratch',
                 os.path.join(cfg.icon_input_oae,
-                             os.path.basename(cfg.oae_ens_lambda_nc)))
+                            os.path.basename(cfg.oae_ens_lambda_nc)))
 
-    # Number of tracers
+        if hasattr(cfg, 'vprm_coeffs_nc'):
+            setattr(
+                cfg, 'vprm_coeffs_nc_scratch',
+                os.path.join(cfg.icon_input_vprm,
+                            os.path.basename(cfg.vprm_coeffs_nc)))
+        if hasattr(cfg, 'vprm_regions_synth_nc'):
+            setattr(
+                cfg, 'vprm_regions_synth_nc_scratch',
+                os.path.join(cfg.icon_input_vprm,
+                            os.path.basename(cfg.vprm_regions_synth_nc)))
+        if hasattr(cfg, 'vprm_lambdas_synth_nc'):
+            setattr( 
+                cfg, 'vprm_lambdas_synth_nc_scratch',
+                os.path.join(cfg.icon_input_vprm,
+                            os.path.basename(cfg.vprm_lambdas_synth_nc)))
+
+
+
+# Number of tracers
     tracer_csvfile = os.path.join(cfg.chain_src_dir, 'cases', cfg.casename,
                                   'cosmo_tracers.csv')
     if os.path.isfile(tracer_csvfile):

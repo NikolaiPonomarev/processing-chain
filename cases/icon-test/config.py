@@ -13,8 +13,8 @@ elif os.path.exists(os.environ['HOME'] + '/.acct'):
 else:
     compute_account = os.popen("id -gn").read().splitlines()[0]
 compute_host = 'daint'
-compute_queue = 'debug'  # 'normal' / 'debug'
-constraint = 'gpu'  # 'mc' / 'gpu'
+compute_queue = 'normal'  # 'normal' / 'debug'
+constraint = 'mc'  # 'mc' / 'gpu'
 
 target = 'icon'
 restart_step = 24  # hours
@@ -29,7 +29,7 @@ path = os.path.realpath(__file__)
 casename = os.path.basename(os.path.dirname(path))
 
 # Root directory of the sourcecode of the chain (where run_chain.py is)
-chain_src_dir = os.getcwd()
+chain_src_dir = os.path.join('/scratch/snx3000/nponomar/processing_chain_python/', 'processing-chain')
 
 # Root directory of the working space of the chain
 work_root = os.path.join(chain_src_dir, 'work')
@@ -80,7 +80,7 @@ filename_format = "<output_filename>_DOM<physdom>_<ddhhmmss>"
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
-icon_bin = os.path.join(chain_src_dir, 'icon', 'bin', 'icon')
+icon_bin = os.path.join('/scratch/snx3000/nponomar/', 'icon', 'bin', 'icon_mst_kit')
 
 # eccodes
 eccodes_dir = os.path.join(chain_src_dir, 'input', 'eccodes_definitions')

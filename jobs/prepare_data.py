@@ -31,7 +31,7 @@ import subprocess
 from datetime import timedelta
 import xarray
 from . import tools
-
+import numpy as np
 
 def main(starttime, hstart, hstop, cfg):
     """
@@ -81,8 +81,8 @@ def main(starttime, hstart, hstop, cfg):
         logging.info('ICON input data (IC/BC)')
 
         starttime_real = starttime + timedelta(hours=hstart)
-
-        #-----------------------------------------------------
+       
+       #-----------------------------------------------------
         # Create directories
         #-----------------------------------------------------
         tools.create_dir(cfg.icon_work, "icon_work")
@@ -93,7 +93,8 @@ def main(starttime, hstart, hstop, cfg):
         tools.create_dir(cfg.icon_input_rad, "icon_input_rad")
         tools.create_dir(cfg.icon_output, "icon_output")
         tools.create_dir(cfg.icon_restart_out, "icon_restart_out")
-
+        tools.create_dir(cfg.icon_input_vprm, "vprm")
+        
         #-----------------------------------------------------
         # Copy files
         #-----------------------------------------------------
@@ -166,6 +167,20 @@ def main(starttime, hstart, hstop, cfg):
                 tools.copy_file(
                     os.path.join(cfg.oae_dir, cfg.oae_ens_lambda_nc),
                     cfg.oae_ens_lambda_nc_scratch)
+            #VPRM input data
+            if hasattr(cfg, 'vprm_coeffs_nc'):
+                tools.copy_file(
+                    os.path.join(cfg.online_vprm_dir, cfg.vprm_coeffs_nc),
+                    cfg.vprm_coeffs_nc_scratch)
+            if hasattr(cfg, 'vprm_regions_synth_nc'):
+                tools.copy_file(
+                    os.path.join(cfg.online_vprm_dir, cfg.vprm_regions_synth_nc),
+                    cfg.vprm_regions_synth_nc_scratch)
+            if hasattr(cfg, 'vprm_lambdas_synth_nc'):
+                tools.copy_file(
+                    os.path.join(cfg.online_vprm_dir, cfg.vprm_lambdas_synth_nc),
+                    cfg.vprm_lambdas_synth_nc_scratch)
+
 
         #-----------------------------------------------------
         # Get datafile lists for LBC (each at 00 UTC and others)
@@ -213,37 +228,39 @@ def main(starttime, hstart, hstop, cfg):
                 raise RuntimeError(
                     "sbatch returned exitcode {}".format(exitcode))
             logging.info("%s successfully executed." % runscript)
-
+        
         #-----------------------------------------------------
         # Add GEOSP to all meteo files
         #-----------------------------------------------------
-        for time in tools.iter_hours(starttime, hstart, hstop, cfg.meteo_inc):
-            src_file = os.path.join(
-                cfg.icon_input_icbc,
-                time.strftime(cfg.meteo_nameformat) + '_lbc.nc')
-            merged_file = os.path.join(
-                cfg.icon_input_icbc,
-                time.strftime(cfg.meteo_nameformat) + '_merged.nc')
-            ds = xarray.open_dataset(src_file)
-            # Load GEOSP-dataset as ds_geosp at time 00:
-            if (time.hour == 0):
-                da_geosp = ds['GEOSP']
-            # Merge GEOSP-dataset with other timesteps
-            elif (time.hour != 0):
-                # Change values of time dimension to current time
-                da_geosp = da_geosp.assign_coords(time=[time])
-                # Merge GEOSP into temporary file
-                ds_merged = xarray.merge([ds, da_geosp])
-                ds_merged.attrs = ds.attrs
-                ds_merged.to_netcdf(merged_file)
-                # Rename file to get original file name
-                tools.rename_file(merged_file, src_file)
-                logging.info("Added GEOSP to file {}".format(merged_file))
+        if not cfg.Init_from_ICON:    
+            for time in tools.iter_hours(starttime, hstart, hstop, cfg.meteo_inc):
+                src_file = os.path.join(
+                    cfg.icon_input_icbc,
+                    time.strftime(cfg.meteo_nameformat) + '_lbc.nc')
+                merged_file = os.path.join(
+                    cfg.icon_input_icbc,
+                    time.strftime(cfg.meteo_nameformat) + '_merged.nc')
+                ds = xarray.open_dataset(src_file)
+                # Load GEOSP-dataset as ds_geosp at time 00:
+                if (time.hour == 0):
+                    da_geosp = ds['GEOSP']
+                # Merge GEOSP-dataset with other timesteps
+                elif (time.hour != 0):
+                    # Change values of time dimension to current time
+                    da_geosp = da_geosp.assign_coords(time=[time])
+                    # Merge GEOSP into temporary file
+                    ds_merged = xarray.merge([ds, da_geosp])
+                    ds_merged.attrs = ds.attrs
+                    ds_merged.to_netcdf(merged_file)
+                    # Rename file to get original file name
+                    tools.rename_file(merged_file, src_file)
+                    logging.info("Added GEOSP to file {}".format(merged_file))
 
         #-----------------------------------------------------
         # In case of OEM: merge chem tracers with meteo-files
         #-----------------------------------------------------
-        if cfg.target is tools.Target.ICONARTOEM:
+        if cfg.target is tools.Target.ICONARTOEM and not cfg.Init_from_ICON:
+             
             for time in tools.iter_hours(starttime, hstart, hstop,
                                          cfg.meteo_inc):
                 if time == starttime:
@@ -262,18 +279,24 @@ def main(starttime, hstart, hstop, cfg):
                     ds_meteo = xarray.open_dataset(meteo_file)
                     ds_chem = xarray.open_dataset(chem_file)
                     # LNPS --> PS
-                    ds_chem['PS'] = ds_chem['LNPS']
+                    #ds_chem['PS'] = ds_chem['LNPS']
+                    ds_chem['PS'] = np.exp(ds_chem['LNPS'])
                     ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
-                    ds_chem['PS'] = ds_chem['PS'].squeeze(dim='lev_2')
                     ds_chem['PS'].attrs["long_name"] = 'surface pressure'
+                    #GEOP SFC
+                    ds_meteo['GEOP_SFC'] = ds_meteo['GEOSP']
+                    ds_meteo['GEOP_SFC'].attrs = ds_meteo['GEOSP'].attrs
+                    ds_meteo['GEOP_SFC'].attrs["long_name"] = 'surface geopotential'
+
                     # merge:
                     ds_merged = xarray.merge([ds_meteo, ds_chem],
                                              compat="override")
+                    ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2')                         
                     #ds_merged.attrs = ds.attrs
                     ds_merged.to_netcdf(merged_file)
                     # Rename file to get original file name
                     tools.rename_file(merged_file, meteo_file)
-                    tools.remove_file(chem_file)
+                    #tools.remove_file(chem_file)
                     logging.info(
                         "Added chemical tracer to file {}".format(merged_file))
 
@@ -292,13 +315,15 @@ def main(starttime, hstart, hstop, cfg):
                 ds_meteo = xarray.open_dataset(meteo_file)
                 ds_chem = xarray.open_dataset(chem_file)
                 # LNPS --> PS
-                ds_chem['PS'] = ds_chem['LNPS']
+                ds_chem['PS'] = np.exp(ds_chem['LNPS'])
                 ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
                 ds_chem['PS'].attrs["long_name"] = 'surface pressure'
                 ds_chem['TRCH4_chemtr'] = ds_chem['CH4_BG']
+                #ds_chem['TRCO2_chemtr'] = ds_chem['CO2']
                 # merge:
                 ds_merged = xarray.merge([ds_meteo, ds_chem],
                                          compat="override")
+                ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
                 #ds_merged.attrs = ds.attrs
                 ds_merged.to_netcdf(merged_file)
                 # Rename file to get original file name
@@ -306,6 +331,15 @@ def main(starttime, hstart, hstop, cfg):
                 tools.remove_file(chem_file)
                 logging.info(
                     "Added chemical tracer to file {}".format(merged_file))
+        else:
+            inidata = os.path.join(
+                cfg.icon_input_icbc,
+                starttime_real.strftime(cfg.meteo_nameformat) + '.nc')
+            link = os.path.join(
+                cfg.art_input_folder,
+                cfg.init_name_5 )   
+            os.system('ln -sf ' + inidata + ' ' + link)
+
 
     # If COSMO (and not ICON):
     else:
