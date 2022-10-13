@@ -14,9 +14,10 @@ compute_host = 'daint'
 compute_queue = 'normal'  # 'normal' / 'debug'
 constraint = 'mc'  # 'mc' / 'gpu'
 
+Init_from_ICON = False
+
 target = 'icon-art-oem'
-restart_step = 24  # hours
-Init_from_ICON = True
+restart_step = 240  # hours
 
 if constraint == 'gpu':
     ntasks_per_node = 12
@@ -41,27 +42,27 @@ case_dir = os.path.join(chain_src_dir, 'cases', casename)
 
 # PREPARE_DATA ---------------------------------------------------------------
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
-#/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output/ICON-ART-OEM_DOM01_20180101T030000Z.nc
-input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output'
-meteo_prefix = 'ICON-ART-OEM_DOM01_'
-meteo_nameformat = meteo_prefix + '%Y%m%dT%H'
-meteo_suffix = '0000Z.nc'
-meteo_inc = 1
 
-input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output'
+input_root_meteo = '/store/empa/em05/dbrunner/icon-art/meteo'
+meteo_prefix = 'era5_'
+meteo_nameformat = meteo_prefix + '%Y%m%d%H'
+meteo_suffix = '.grb'
+meteo_inc = 3
 
-input_root_icbc = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output'
-chem_prefix = 'ICON-ART-OEM_DOM01_'
-chem_nameformat = chem_prefix + '%Y%m%d'+'T'+'%H'
-chem_suffix = '0000Z.nc'
-chem_inc = 1
+input_root_chem = '/store/empa/em05/dbrunner/icon-art/icbc'
+
+input_root_icbc = os.path.join(input_root, 'icbc')
+chem_prefix = 'cams_gqpe_'
+chem_nameformat = chem_prefix + '%Y%m%d_%H'
+chem_suffix = '.grb'
+chem_inc = 3
 
 icontools_runjobs = [
     'icontools_remap_ic_runjob.cfg',
     'icontools_remap_00_lbc_runjob.cfg',
     'icontools_remap_lbc_rest_runjob.cfg',
-    #'icontools_remap_ic_chem_runjob.cfg',
-    #'icontools_remap_lbc_chem_runjob.cfg',
+    'icontools_remap_ic_chem_runjob.cfg',
+    'icontools_remap_lbc_chem_runjob.cfg',
 ]
 
 # Icontools executables
@@ -81,43 +82,43 @@ input_root_grid = os.path.join(input_root, 'grids')
 #ICOS EU domain
 input_root_grid = os.path.join(input_root, 'grids')
 #input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
-input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids/grid_R4B8'
+input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
 radiation_grid_filename = os.path.join(input_root_grid_ICOS,
-                                       "icon_Zurich_R19B9_wide_DOM01.parent.nc")
-dynamics_grid_filename = os.path.join(input_root_grid_ICOS, "icon_Zurich_R19B9_wide_DOM01.nc")
+                                       "icon_europe_DOM01.parent.nc")
+dynamics_grid_filename = os.path.join(input_root_grid_ICOS, "icon_europe_DOM01.nc")
 
 input_root_mapping = '/users/nponomar/Mapping'
 map_file_ana = os.path.join(input_root_mapping, "map_file.ana")
 
 map_file_latbc = os.path.join(input_root_mapping, "map_file.latbc")
 extpar_filename = os.path.join(
-    input_root_grid_ICOS, "icon_extpar_zurich_R19B9_wide.nc")
+    input_root_grid_ICOS, "icon_extpar_europe.nc")
 input_root_rad = os.path.join(input_root, 'rad')
 cldopt_filename = os.path.join(input_root_rad, 'rrtm_cldopt.nc')
 lrtm_filename = os.path.join(input_root_rad, 'rrtmg_lw.nc')
 
-#ICON-ART-OEM_DOM01_20180101T04_lbc.nc
+
 # File names -----------------------------------------------------------------
-latbc_filename = "ICON-ART-OEM_DOM01_<y><m><d>T<h>_lbc.nc"
-inidata_prefix = "icon_init_"
+latbc_filename = "era5_<y><m><d><h>_lbc.nc"
+inidata_prefix = "era5_init_"
 inidata_nameformat = inidata_prefix + '%Y%m%d%H'
 inidata_filename_suffix = ".nc"
 
 output_filename = "icon-art-test"
-filename_format = "<output_filename>_DOM<physdom>_<ddhhmmss>"
+filename_format = "<output_filename>_DOM<physdom>_<datetime2>"
 
 # ART settings----------------------------------------------------------------
 input_root_tracers = '/users/nponomar/Emissions/'
 chemtracer_xml_filename = os.path.join(input_root_tracers,
-                                       'tracers_oh_pntsrc_stchem.xml')
+                                       'tracers_oh_EU.xml')
 pntSrc_xml_filename = os.path.join(input_root_tracers, 'pntSrc_example.xml')
-art_input_folder = '/users/nponomar/Emissions/ART'
-init_name_5 = 'ART_ICE_iconR19B09-grid_.nc'
+art_input_folder = os.path.join(input_root, 'ART')
+
 # OAE ------------------------------------------------------------------------
 # Online anthropogenic emissions
 oae_dir = '/users/nponomar/Emissions/'
-oae_gridded_emissions_nc = 'icon_Zurich_R19B9_wide_DOM01_Emission_CO2_mapLuft_2020_v2021.nc'
-oae_vertical_profiles_nc = 'vertical_profiles_c.nc'
+oae_gridded_emissions_nc = 'tno_testing.nc'
+oae_vertical_profiles_nc = 'vertical_profiles_t1.nc'
 oae_hourofday_nc = 'hourofday.nc'
 oae_dayofweek_nc = 'dayofweek.nc'
 oae_monthofyear_nc = 'monthofyear.nc'
@@ -127,7 +128,7 @@ oae_monthofyear_nc = 'monthofyear.nc'
 # VPRM ------------------------------------------------------------------------
 # ICON-ART VPRM coefficients calculated using MODIS data
 online_vprm_dir = '/users/nponomar/MODIS/modis2grid/Data'
-#vprm_coeffs_nc = 'VPRM_indices_ICON_ZH_22.nc'
+#vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22.nc'
 vprm_coeffs_nc = 'VPRM_indices_icon-art-test.nc'
 vprm_regions_synth_nc = 'regions_synth.nc' 
 vprm_lambdas_synth_nc = 'lambdas_synth.nc'
@@ -145,7 +146,7 @@ icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 
 # Walltimes and domain decomposition
 if compute_queue == "normal":
-    icon_walltime = "00:30:00"
+    icon_walltime = "01:30:00"
     icon_np_tot = 16
 elif compute_queue == "debug":
     icon_walltime = "00:30:00"

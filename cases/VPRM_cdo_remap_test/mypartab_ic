@@ -1,7 +1,7 @@
 &parameter ! surface geopotential
-name = "Z"
-out_name = "GEOSP"
-param_out =129
+ name = "Z"
+ out_name = "GEOSP"
+ param_out =129
 /
 &parameter  ! geopotential ml
  name      = "z"

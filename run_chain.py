@@ -27,7 +27,7 @@ default_jobs = {
     ],
     tools.Target.ICON: ["prepare_data", "icon"],
     tools.Target.ICONART: ["prepare_data", "icon"],
-    tools.Target.ICONARTOEM: ["prepare_data", "oae", "icon"]
+    tools.Target.ICONARTOEM: ["prepare_data", "oae", "icon", "ctdas", "ctdas_prepare_scripts"]
 }
 
 
@@ -428,6 +428,11 @@ def run_chain(work_root, cfg, start_time, hstart, hstop, job_names, force):
                 cfg, 'oae_ens_lambda_nc_scratch',
                 os.path.join(cfg.icon_input_oae,
                             os.path.basename(cfg.oae_ens_lambda_nc)))
+        if hasattr(cfg, 'boundary_regions_nc'):
+            setattr(
+                cfg, 'boundary_regions_nc_scratch',
+                os.path.join(cfg.icon_input_oae,
+                            os.path.basename(cfg.boundary_regions_nc)))
 
         if hasattr(cfg, 'vprm_coeffs_nc'):
             setattr(
