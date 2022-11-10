@@ -280,23 +280,57 @@ def main(starttime, hstart, hstop, cfg):
                     ds_chem = xarray.open_dataset(chem_file)
                     # LNPS --> PS
                     #ds_chem['PS'] = ds_chem['LNPS']
-                    ds_chem['PS'] = np.exp(ds_chem['LNPS'])
-                    ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
-                    ds_chem['PS'].attrs["long_name"] = 'surface pressure'
+                    #ds_chem['PS'] = np.exp(ds_chem['LNPS'])
+                    #ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
+                    #ds_chem['PS'].attrs["long_name"] = 'surface pressure'
                     #GEOP SFC
                     ds_meteo['GEOP_SFC'] = ds_meteo['GEOSP']
                     ds_meteo['GEOP_SFC'].attrs = ds_meteo['GEOSP'].attrs
                     ds_meteo['GEOP_SFC'].attrs["long_name"] = 'surface geopotential'
 
-                    # merge:
-                    ds_merged = xarray.merge([ds_meteo, ds_chem],
+                    # merge:ds2.isel(nhyi=slice(0, max(ds1.nhyi.values)+1), nhym= slice(0, max(ds1.nhym.values)+1), lev=slice(0, int(max(ds1.lev.values))))
+                    try: 
+                        ds_merged = xarray.merge([ds_meteo, ds_chem],
                                              compat="override")
-                    ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2')                         
+                        levels = ds_chem.lev
+                
+                    except (ValueError, AttributeError):
+                        '''
+                        if max(ds_meteo.nhyi.values)>max(ds_chem.nhyi.values):
+                            #ds_meteo_reduced = ds_meteo.isel(nhyi=slice(0, max(ds_chem.nhyi.values)+1), nhym= slice(0, max(ds_chem.nhym.values)+1), lev=slice(0, int(max(ds_chem.lev.values)))) 
+                            #ds_merged = xarray.merge([ds_meteo_reduced, ds_chem],
+                            #                 compat="override")
+                        '''
+                        ds_meteo = ds_meteo.assign(TRCO2_chemtr=lambda ds_meteo: ds_meteo.T*0)
+                        ds_meteo = ds_meteo.assign(CH4_BG=lambda ds_meteo: ds_meteo.T*0)
+                        ds_meteo['TRCO2_chemtr'].attrs = ds_chem['TRCO2_chemtr'].attrs
+                        ds_meteo['CH4_BG'].attrs = ds_chem['CH4_BG'].attrs
+                        #ds_meteo['CH4_BG'] = ds_chem['CH4_BG']
+                        start_index = len(ds_meteo.TRCO2_chemtr.values[0]) - len(ds_chem.TRCO2_chemtr.values[0])
+                        for x,y in enumerate(ds_meteo.TRCO2_chemtr.values[0]):
+                            if x < start_index:
+                                    ds_meteo.TRCO2_chemtr[0, x, :] = 0.0
+                                    ds_meteo.CH4_BG[0, x, :] = 0.0
+                            else:
+                                    ds_meteo.TRCO2_chemtr[0, x, :] = ds_chem.TRCO2_chemtr[0, x-start_index, :]
+                                    ds_meteo.CH4_BG[0, x, :] = ds_chem.CH4_BG[0, x-start_index, :]
+
+                        ds_meteo['Q'] = ds_meteo['QV']
+
+
+                        ds_merged=ds_meteo
+                        '''
+                        else:
+                            ds_chem_reduced = ds_chem.isel(nhyi=slice(0, max(ds_meteo.nhyi.values)+1), nhym= slice(0, max(ds_meteo.nhym.values)+1), lev=slice(0, int(max(ds_meteo.lev.values))))
+                            ds_merged = xarray.merge([ds_meteo, ds_chem_reduced],
+                                             compat="override")
+                        '''
+                    #ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2')                         
                     #ds_merged.attrs = ds.attrs
                     ds_merged.to_netcdf(merged_file)
                     # Rename file to get original file name
                     tools.rename_file(merged_file, meteo_file)
-                    #tools.remove_file(chem_file)
+                    tools.remove_file(chem_file)
                     logging.info(
                         "Added chemical tracer to file {}".format(merged_file))
 
@@ -315,15 +349,52 @@ def main(starttime, hstart, hstop, cfg):
                 ds_meteo = xarray.open_dataset(meteo_file)
                 ds_chem = xarray.open_dataset(chem_file)
                 # LNPS --> PS
-                ds_chem['PS'] = np.exp(ds_chem['LNPS'])
-                ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
-                ds_chem['PS'].attrs["long_name"] = 'surface pressure'
+                #ds_chem['PS'] = np.exp(ds_chem['LNPS'])
+                #ds_chem['PS'].attrs = ds_chem['LNPS'].attrs
+                #ds_chem['PS'].attrs["long_name"] = 'surface pressure'
                 ds_chem['TRCH4_chemtr'] = ds_chem['CH4_BG']
                 #ds_chem['TRCO2_chemtr'] = ds_chem['CO2']
                 # merge:
-                ds_merged = xarray.merge([ds_meteo, ds_chem],
-                                         compat="override")
-                ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                try: 
+                    ds_merged = xarray.merge([ds_meteo, ds_chem],
+                                            compat="override")
+                    levels = ds_chem.lev
+                
+                except (ValueError, AttributeError):
+                    ds_meteo = ds_meteo.assign(TRCO2_BG_chemtr=lambda ds_meteo: ds_meteo.T*0)
+                    ds_meteo = ds_meteo.assign(CH4_BG=lambda ds_meteo: ds_meteo.T*0)
+                    ds_meteo['TRCO2_BG_chemtr'].attrs = ds_chem['TRCO2_chemtr'].attrs
+                    ds_meteo['CH4_BG'].attrs = ds_chem['CH4_BG'].attrs
+                    #ds_meteo['TRCO2_BG_chemtr'] = ds_chem['TRCO2_chemtr']
+                    start_index = len(ds_meteo.TRCO2_BG_chemtr.values[0]) - len(ds_chem.TRCO2_chemtr.values[0])
+                    #ds_meteo['CH4_BG'] = ds_chem['CH4_BG']
+                    for x,y in enumerate(ds_meteo.TRCO2_BG_chemtr.values[0]):
+                        if x < start_index:
+                                ds_meteo.TRCO2_BG_chemtr[0, x, :] = 0.0
+                                ds_meteo.CH4_BG[0, x, :] = 0.0
+                        else:
+                                ds_meteo.TRCO2_BG_chemtr[0, x, :] = ds_chem.TRCO2_chemtr[0, x-start_index, :]
+                                ds_meteo.CH4_BG[0, x, :] = ds_chem.CH4_BG[0, x-start_index, :]
+
+                    ds_meteo['Q'] = ds_meteo['QV']
+
+
+                    ds_merged=ds_meteo
+ 
+                    ds_merged=ds_meteo
+                    '''
+                    if max(ds_meteo.nhyi.values)>max(ds_chem.nhyi.values):
+                        #ds_meteo_reduced = ds_meteo.isel(nhyi=slice(0, max(ds_chem.nhyi.values)+1), nhym= slice(0, max(ds_chem.nhym.values)+1), lev=slice(0, int(max(ds_chem.lev.values)))) 
+                        ds_meteo_reduced = ds_meteo.isel(nhyi=slice(0, max(ds_chem.nhyi.values)+1), nhym= slice(0, max(ds_chem.nhym.values)+1))
+                        ds_merged = xarray.merge([ds_meteo_reduced, ds_chem],
+                                            compat="override")
+                    else:
+                        #ds_chem_reduced = ds_chem.isel(nhyi=slice(0, max(ds_meteo.nhyi.values)+1), nhym= slice(0, max(ds_meteo.nhym.values)+1), lev=slice(0, int(max(ds_meteo.lev.values))))
+                        ds_chem_reduced = ds_chem.isel(nhyi=slice(0, max(ds_meteo.nhyi.values)+1), nhym= slice(0, max(ds_meteo.nhym.values)+1))
+                        ds_merged = xarray.merge([ds_meteo, ds_chem_reduced],
+                                            compat="override")
+                    '''                        
+                #ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
                 #ds_merged.attrs = ds.attrs
                 ds_merged.to_netcdf(merged_file)
                 # Rename file to get original file name
