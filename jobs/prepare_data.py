@@ -324,8 +324,12 @@ def main(starttime, hstart, hstop, cfg):
                             ds_chem_reduced = ds_chem.isel(nhyi=slice(0, max(ds_meteo.nhyi.values)+1), nhym= slice(0, max(ds_meteo.nhym.values)+1), lev=slice(0, int(max(ds_meteo.lev.values))))
                             ds_merged = xarray.merge([ds_meteo, ds_chem_reduced],
                                              compat="override")
+                    
                         '''
-                    #ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2')                         
+                    try:    
+                        ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                    except KeyError:
+                        continue
                     #ds_merged.attrs = ds.attrs
                     ds_merged.to_netcdf(merged_file)
                     # Rename file to get original file name
@@ -394,7 +398,10 @@ def main(starttime, hstart, hstop, cfg):
                         ds_merged = xarray.merge([ds_meteo, ds_chem_reduced],
                                             compat="override")
                     '''                        
-                #ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                try:    
+                    ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                except KeyError:
+                    continue
                 #ds_merged.attrs = ds.attrs
                 ds_merged.to_netcdf(merged_file)
                 # Rename file to get original file name
