@@ -293,7 +293,8 @@ def main(starttime, hstart, hstop, cfg):
                         ds_merged = xarray.merge([ds_meteo, ds_chem],
                                              compat="override")
                         levels = ds_chem.lev
-                
+                        logging.info(
+                            "Number of levels in chemical ic/bc is equal to 137")
                     except (ValueError, AttributeError):
                         '''
                         if max(ds_meteo.nhyi.values)>max(ds_chem.nhyi.values):
@@ -314,9 +315,12 @@ def main(starttime, hstart, hstop, cfg):
                             else:
                                     ds_meteo.TRCO2_chemtr[0, x, :] = ds_chem.TRCO2_chemtr[0, x-start_index, :]
                                     ds_meteo.CH4_BG[0, x, :] = ds_chem.CH4_BG[0, x-start_index, :]
-
+                        
+                        ds_meteo.TRCO2_chemtr.values = ds_meteo.TRCO2_chemtr.values/(1.-ds_meteo['QV'].values)
+                        ds_meteo.CH4_BG.values = ds_meteo.CH4_BG.values/(1.-ds_meteo['QV'].values)
                         ds_meteo['Q'] = ds_meteo['QV']
-
+                        logging.info(
+                            "Number of levels in chemical ic/bc is not equal to 137")
 
                         ds_merged=ds_meteo
                         '''
@@ -328,10 +332,11 @@ def main(starttime, hstart, hstop, cfg):
                         '''
                     try:    
                         ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                        ds_merged.to_netcdf(merged_file)
                     except KeyError:
-                        continue
+                        ds_merged.to_netcdf(merged_file)
                     #ds_merged.attrs = ds.attrs
-                    ds_merged.to_netcdf(merged_file)
+                    #ds_merged.to_netcdf(merged_file)
                     # Rename file to get original file name
                     tools.rename_file(merged_file, meteo_file)
                     tools.remove_file(chem_file)
@@ -382,7 +387,8 @@ def main(starttime, hstart, hstop, cfg):
 
                     ds_meteo['Q'] = ds_meteo['QV']
 
-
+                    ds_meteo.TRCO2_BG_chemtr.values = ds_meteo.TRCO2_BG_chemtr.values*(1.-ds_meteo['QV'].values)
+                    ds_meteo.CH4_BG.values = ds_meteo.CH4_BG.values*(1.-ds_meteo['QV'].values)
                     ds_merged=ds_meteo
  
                     ds_merged=ds_meteo
@@ -400,10 +406,11 @@ def main(starttime, hstart, hstop, cfg):
                     '''                        
                 try:    
                     ds_merged['PS'] = ds_merged['PS'].squeeze(dim='lev_2') 
+                    ds_merged.to_netcdf(merged_file)
                 except KeyError:
-                    continue
+                    ds_merged.to_netcdf(merged_file)
                 #ds_merged.attrs = ds.attrs
-                ds_merged.to_netcdf(merged_file)
+                #ds_merged.to_netcdf(merged_file)
                 # Rename file to get original file name
                 tools.rename_file(merged_file, meteo_file)
                 tools.remove_file(chem_file)

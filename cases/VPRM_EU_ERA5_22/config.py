@@ -44,7 +44,7 @@ case_dir = os.path.join(chain_src_dir, 'cases', casename)
 # PREPARE_DATA ---------------------------------------------------------------
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
 
-input_root_meteo = '/scratch/snx3000/nponomar/ERA5'
+input_root_meteo = '/scratch/snx3000/nponomar/ERA5/2022'
 meteo_prefix = 'era5_'
 meteo_nameformat = meteo_prefix + '%Y%m%d%H'
 meteo_suffix = '.nc'
@@ -112,14 +112,14 @@ filename_format = "<output_filename>_DOM<physdom>_<datetime2>"
 # ART settings----------------------------------------------------------------
 input_root_tracers = '/users/nponomar/Emissions/'
 chemtracer_xml_filename = os.path.join(input_root_tracers,
-                                       'tracers_oh_EU_emis.xml')
+                                       'tracers_oh_EU_Lionel_emis.xml')
 pntSrc_xml_filename = os.path.join(input_root_tracers, 'pntSrc_example.xml')
 art_input_folder = os.path.join(input_root, 'ART')
 
 # OAE ------------------------------------------------------------------------
 # Online anthropogenic emissions
 oae_dir = '/users/nponomar/Emissions/'
-oae_gridded_emissions_nc = 'tno_testing.nc'
+oae_gridded_emissions_nc = 'icon_europe_DOM01_with_tno_emissions.nc'
 oae_vertical_profiles_nc = 'vertical_profiles_t1.nc'
 oae_hourofday_nc = 'hourofday.nc'
 oae_dayofweek_nc = 'dayofweek.nc'
@@ -131,7 +131,7 @@ oae_monthofyear_nc = 'monthofyear.nc'
 # ICON-ART VPRM coefficients calculated using MODIS data
 online_vprm_dir = '/users/nponomar/MODIS/modis2grid/Data'
 #vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22.nc'
-vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22_jul.nc'
+vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22_full.nc'
 vprm_regions_synth_nc = 'regions_synth.nc' 
 vprm_lambdas_synth_nc = 'lambdas_synth.nc'
 
@@ -139,7 +139,7 @@ vprm_lambdas_synth_nc = 'lambdas_synth.nc'
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
-icon_bin = os.path.join(exe_dir, "icon")
+icon_bin = os.path.join(exe_dir, "icon_mst_vprm_ens")
 #icon_bin = os.path.join(exe_dir, "icon_oem_emissions")
 # Namelists and slurm runscript templates
 icon_runjob = os.path.join(case_dir, 'icon_runjob.cfg')
@@ -148,11 +148,11 @@ icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 
 # Walltimes and domain decomposition
 if compute_queue == "normal":
-    icon_walltime = "05:00:00"
+    icon_walltime = "24:00:00"
     icon_np_tot = 16
 elif compute_queue == "debug":
     icon_walltime = "00:30:00"
-    icon_np_tot = 10
+    icon_np_tot = 2
 else:
     logging.error("Unknown queue name: %s" % compute_queue)
     sys.exit(1)
