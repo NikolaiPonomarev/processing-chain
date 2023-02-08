@@ -188,6 +188,8 @@ def main(starttime, hstart, hstop, cfg):
         datafile_list = []
         datafile_list_rest = []
         datafile_list_chem = []
+        datafile_list_ic = []
+        datafile_list_ic_chem = []
         for time in tools.iter_hours(starttime, hstart, hstop, cfg.meteo_inc):
             meteo_file = os.path.join(cfg.icon_input_icbc,
                                       time.strftime(cfg.meteo_nameformat))
@@ -202,6 +204,24 @@ def main(starttime, hstart, hstop, cfg):
         datafile_list = ' '.join([str(v) for v in datafile_list])
         datafile_list_rest = ' '.join([str(v) for v in datafile_list_rest])
         datafile_list_chem = ' '.join([str(v) for v in datafile_list_chem])
+        if hasattr(cfg, 'ctdas_cycle'):
+            for time in tools.iter_hours(starttime, hstart, hstop, cfg.ctdas_cycle*24):
+                meteo_file_ctdas_ic = os.path.join(cfg.icon_input_icbc,
+                                        time.strftime(cfg.meteo_nameformat))
+                if cfg.target is tools.Target.ICONART or cfg.target is tools.Target.ICONARTOEM:
+                    chem_file_ctdas_ic = os.path.join(cfg.icon_input_icbc,
+                                            time.strftime(cfg.chem_nameformat))
+                    datafile_list_ic_chem.append(chem_file_ctdas_ic + cfg.chem_suffix)
+                datafile_list_ic.append(meteo_file_ctdas_ic + cfg.meteo_suffix)
+            datafile_list_ic = ' '.join([str(v) for v in datafile_list_ic])
+            datafile_list_ic_chem = ' '.join([str(v) for v in datafile_list_ic_chem])
+        else:
+            datafile_list_ic = [os.path.join(
+                                    cfg.icon_input_icbc,
+                                    starttime.strftime(cfg.meteo_nameformat) + '.nc')]
+            datafile_list_ic_chem = [os.path.join(
+                                        cfg.icon_input_icbc,
+                                        starttime.strftime(cfg.chem_nameformat) + '.nc')]
 
         #-----------------------------------------------------
         # Write and submit runscripts
@@ -219,7 +239,9 @@ def main(starttime, hstart, hstop, cfg):
                                     logfile_finish=logfile_finish,
                                     datafile_list=datafile_list,
                                     datafile_list_rest=datafile_list_rest,
-                                    datafile_list_chem=datafile_list_chem))
+                                    datafile_list_chem=datafile_list_chem,
+                                    datafile_list_ic_ctdas = datafile_list_ic,
+                                    datafile_list_ic_chem_ctdas = datafile_list_ic_chem))
             exitcode = subprocess.call([
                 "sbatch", "--wait",
                 os.path.join(cfg.icon_work, "%s.job" % runscript)
@@ -262,14 +284,17 @@ def main(starttime, hstart, hstop, cfg):
         if cfg.target is tools.Target.ICONARTOEM and not cfg.Init_from_ICON:
              
             for time in tools.iter_hours(starttime, hstart, hstop,
-                                         cfg.meteo_inc):
-                if time == starttime:
+                                         cfg.meteo_inc*7*8):
+
+                meteo_file = os.path.join(
+                        cfg.icon_input_icbc,
+                        time.strftime(cfg.meteo_nameformat) + '.nc')
+                #if time == starttime:
+                if meteo_file in datafile_list_ic:
                     #------------
                     # Merge IC:
                     #------------
-                    meteo_file = os.path.join(
-                        cfg.icon_input_icbc,
-                        time.strftime(cfg.meteo_nameformat) + '.nc')
+
                     chem_file = os.path.join(
                         cfg.icon_input_icbc,
                         time.strftime(cfg.chem_nameformat) + '.nc')

@@ -20,7 +20,9 @@ def main(starttime, hstart, hstop, cfg):
 
     # Copy icon executable
     execname = 'icon.exe'
+    execname_bg = 'icon_bg.exe'
     tools.copy_file(cfg.icon_bin, os.path.join(cfg.icon_work, execname))
+    tools.copy_file(cfg.icon_bin, os.path.join(cfg.icon_work+'_bg', execname_bg))
     
     setattr(
             cfg, 'ctdas_exec',
@@ -90,8 +92,12 @@ def main(starttime, hstart, hstop, cfg):
             to_write.format(cfg=cfg))  
 
     #Create dir for extracted data
-    tools.create_dir(cfg.icon_base, "extracted")
-
+    tools.create_dir(os.path.join(cfg.icon_base, "extracted"), "extracted data")
+                                              
+    #Create dir for observations and copy them
+    tools.create_dir(os.path.join(cfg.icon_base, "input", "observations"), "observations")
+    tools.copy_file(cfg.ctdas_observations,
+                        os.path.join(cfg.icon_base, "input", "observations")) 
 
 
     exitcode = subprocess.call(
