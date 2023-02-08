@@ -27,7 +27,7 @@ default_jobs = {
     ],
     tools.Target.ICON: ["prepare_data", "icon"],
     tools.Target.ICONART: ["prepare_data", "icon"],
-    tools.Target.ICONARTOEM: ["prepare_data", "oae", "icon", "ctdas", "ctdas_prepare_scripts"]
+    tools.Target.ICONARTOEM: ["prepare_data", "oae", "icon", "ctdas", "ctdas_prepare_scripts", "ctdas_prepare_scripts_no_restart"]
 }
 
 
