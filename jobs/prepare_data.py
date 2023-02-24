@@ -193,9 +193,23 @@ def main(starttime, hstart, hstop, cfg):
         for time in tools.iter_hours(starttime, hstart, hstop, cfg.meteo_inc):
             meteo_file = os.path.join(cfg.icon_input_icbc,
                                       time.strftime(cfg.meteo_nameformat))
+
+            #Check if the original input meteo file exists at the given location
+            input_meteo_file = os.path.join(cfg.input_root_meteo, time.strftime(cfg.meteo_nameformat)) + cfg.meteo_suffix
+            if not os.path.exists(input_meteo_file):
+                        raise RuntimeError(
+                        "Meteo file does not exist {}".format(input_meteo_file))
+
             if cfg.target is tools.Target.ICONART or cfg.target is tools.Target.ICONARTOEM:
                 chem_file = os.path.join(cfg.icon_input_icbc,
                                          time.strftime(cfg.chem_nameformat))
+
+                #Check if the original input chem file exists at the given location                         
+                input_chem_file = os.path.join(cfg.input_root_chem, time.strftime(cfg.chem_nameformat)) + cfg.chem_suffix
+                if not os.path.exists(input_chem_file):
+                        raise RuntimeError(
+                        "Chem file does not exist {}".format(input_chem_file))   
+
                 datafile_list_chem.append(chem_file + cfg.chem_suffix)
             if meteo_file.endswith('00'):
                 datafile_list.append(meteo_file + cfg.meteo_suffix)
