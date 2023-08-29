@@ -66,8 +66,9 @@ def main(starttime, hstart, hstop, cfg):
                             )  
             os.system('ln -sf ' + inidata + ' ' + link)
 
-        end_cycle_filename = cfg.icon_output + '/ICON-ART-UNSTR_DOM01_%sT000000Z.nc'%((time + timedelta(hours=cfg.restart_cycle_window/(3600))).strftime('%Y-%m-%d'))
+        end_cycle_filename = cfg.icon_output + '/ICON-ART-UNSTRUCTURED_DOM01_%sT000000Z.nc'%((time + timedelta(hours=cfg.restart_cycle_window/(3600))).strftime('%Y%m%d'))
         #Check if the end of the cycle file already exists and if not submit the run icon job
+        logging.info("Check for the file :  {}".format(end_cycle_filename))
         if not (os.path.exists(end_cycle_filename)):
             logging.info("Submit Runscript:  {}".format(output_file))
             exitcode = subprocess.call(
@@ -79,6 +80,9 @@ def main(starttime, hstart, hstop, cfg):
             if tools.grep("free(): invalid pointer", logfile)['success'] and \
             tools.grep("clean-up finished", logfile)['success']:
                 exitcode = 0
+
+            if tools.grep("horizontal CFL number exceeded at", logfile)['success']:
+                logging.info("CFL error:  {}".format(logfile))
 
             if exitcode != 0:
                 raise RuntimeError("sbatch returned exitcode {}".format(exitcode))

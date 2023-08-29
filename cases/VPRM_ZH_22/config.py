@@ -14,10 +14,11 @@ compute_host = 'daint'
 compute_queue = 'normal'  # 'normal' / 'debug'
 constraint = 'mc'  # 'mc' / 'gpu'
 
-Init_from_ICON = False
-
 target = 'icon-art-oem'
-restart_step = 240000  # hours
+restart_step = 24000  # hours
+Init_from_ICON = True
+
+restart_cycle_window = 2592000 #2592000 #secs
 
 if constraint == 'gpu':
     ntasks_per_node = 12
@@ -36,40 +37,43 @@ work_root = os.path.join(chain_src_dir, 'work')
 
 # Directory where executables are stored
 exe_dir = "/scratch/snx3000/nponomar/icon-vprm-try2/icon-vprm/bin"
-#exe_dir = "/users/nponomar/icon-art-vprm/config/cscs/spack/bin"
 
 # Case directory
 case_dir = os.path.join(chain_src_dir, 'cases', casename)
 
 # PREPARE_DATA ---------------------------------------------------------------
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
-
-input_root_meteo = '/scratch/snx3000/nponomar/ERA5/2022/concatenated'
-meteo_prefix = 'era5_'
-meteo_nameformat = meteo_prefix + '%Y%m%d%H'
-meteo_suffix = '.nc'
+#/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output/ICON-ART-OEM_DOM01_20180101T030000Z.nc
+#input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4416/icon/output'
+input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4416/icon/output'
+meteo_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
+#meteo_prefix = 'ICON-ART-OEM_DOM01_'
+meteo_nameformat = meteo_prefix + '%Y%m%dT%H'
+meteo_suffix = '0000Z.nc'
 meteo_inc = 1
+remapping_method = 'remapdis' #e.g., remapbil, remapdis
+input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4416/icon/output'
 
-input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/CAMS_hourly_data_interpolated_Dominik/converted'
-
-input_root_icbc = os.path.join(input_root, 'icbc')
-chem_prefix = 'cams_hlkx_'
-chem_nameformat = chem_prefix + '%Y%m%d%H'
-chem_suffix = '.nc'
+input_root_icbc = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4416/icon/output'
+chem_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
+chem_nameformat = chem_prefix + '%Y%m%d'+'T'+'%H'
+chem_suffix = '0000Z.nc'
 chem_inc = 1
 
 icontools_runjobs = [
-    'icontools_remap_ic_runjob.cfg',
-    'icontools_remap_00_lbc_runjob.cfg',
-    'icontools_remap_lbc_rest_runjob.cfg',
-    'icontools_remap_ic_chem_runjob.cfg',
-    'icontools_remap_lbc_chem_runjob.cfg',
+     'icontools_remap_ic_runjob.cfg',
+      'remap_00_lbc_runjob_py.cfg',
+      'remap_lbc_rest_py.cfg'
+
+    #'icontools_remap_00_lbc_runjob.cfg',
+    #'icontools_remap_lbc_rest_runjob.cfg',
+    #'icontools_remap_ic_chem_runjob.cfg',
+    #'icontools_remap_lbc_chem_runjob.cfg',
 ]
 
 # Icontools executables
 #icontools_dir = '/project/s903/mjaehn/spack-install/daint/icontools/master/cce/ldcbgsjjzq2p73xbei7ws4wce5ivzxer/bin/'
 icontools_dir = '/scratch/snx3000/nponomar/spack-install/daint/icontools/c2sm-master/gcc/a3xbhvwqfcpr2q7n5gx5ucyg5rspepdx/bin'
-#icontools_dir = '/scratch/snx3000/nponomar/icon-vprm/bin'
 iconremap_bin = os.path.join(icontools_dir, "iconremap")
 iconsub_bin = os.path.join(icontools_dir, "iconsub")
 
@@ -84,54 +88,55 @@ input_root_grid = os.path.join(input_root, 'grids')
 #ICOS EU domain
 input_root_grid = os.path.join(input_root, 'grids')
 #input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
-input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
+input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids/grid_R4B8'
 radiation_grid_filename = os.path.join(input_root_grid_ICOS,
-                                       "icon_europe_DOM01.parent.nc")
-dynamics_grid_filename = os.path.join(input_root_grid_ICOS, "icon_europe_DOM01.nc")
+                                       "icon_Zurich_R19B9_wide_DOM01.parent.nc")
+dynamics_grid_filename = os.path.join(input_root_grid_ICOS, "icon_Zurich_R19B9_wide_DOM01.nc")
 
 input_root_mapping = '/users/nponomar/Mapping'
-map_file_ana = os.path.join(input_root_mapping, "map_file.ana")
+map_file_ana = os.path.join(input_root_mapping, "map_file_ZH.ana")
 
-map_file_latbc = os.path.join(input_root_mapping, "map_file.latbc")
+map_file_latbc = os.path.join(input_root_mapping, "map_file_ZH.latbc")
 extpar_filename = os.path.join(
-    input_root_grid_ICOS, "icon_extpar_EU_corine_Erik.nc")
+    input_root_grid_ICOS, "icon_extpar_ZH_corine_Erik.nc")
 input_root_rad = os.path.join(input_root, 'rad')
 cldopt_filename = os.path.join(input_root_rad, 'rrtm_cldopt.nc')
 lrtm_filename = os.path.join(input_root_rad, 'rrtmg_lw.nc')
 
-
+#ICON-ART-OEM_DOM01_20180101T04_lbc.nc
 # File names -----------------------------------------------------------------
-latbc_filename = "era5_<y><m><d><h>_lbc.nc"
-inidata_prefix = "era5_init_"
+latbc_filename = "ICON-ART-UNSTRUCTURED_DOM01_<y><m><d>T<h>_lbc.nc"
+inidata_prefix = "icon_init_"
 inidata_nameformat = inidata_prefix + '%Y%m%d%H'
 inidata_filename_suffix = ".nc"
-
+mmr = 'wet' #specify the mmr type for latbc, will only be converted if mmr = 'dry'
 output_filename = "icon-art-test"
-filename_format = "<output_filename>_DOM<physdom>_<datetime2>"
+filename_format = "<output_filename>_DOM<physdom>_<ddhhmmss>"
 
 # ART settings----------------------------------------------------------------
 input_root_tracers = '/users/nponomar/Emissions/'
 chemtracer_xml_filename = os.path.join(input_root_tracers,
-                                       'tracers_oh_EU_Lionel_emis.xml')
-pntSrc_xml_filename = os.path.join(input_root_tracers, 'pntSrc_example.xml')
-art_input_folder = os.path.join(input_root, 'ART')
-
+                                       'updated_Zurich_summer23.xml')
+                                    #    'hoy_test.xml')
+pntSrc_xml_filename = os.path.join(input_root_tracers, 'pntSrcs.xml')
+art_input_folder = '/users/nponomar/Emissions/ART'
+init_name_5 = 'ART_ICE_iconR19B09-grid_.nc'
 # OAE ------------------------------------------------------------------------
 # Online anthropogenic emissions
-oae_dir = '/users/nponomar/Emissions/'
-oae_gridded_emissions_nc = 'icon_europe_DOM01_with_tno_emissions.nc'
-oae_vertical_profiles_nc = 'vertical_profiles_t1.nc'
+oae_dir = '/scratch/snx3000/nponomar/Emissions/'
+oae_gridded_emissions_nc = 'icon_Zurich_R19B9_wide_DOM01_zh_ch_tno_combined.nc'
+oae_vertical_profiles_nc = 'vertical_profiles_t.nc'#'vertical_profiles_t.nc' 'vertical_profiles.nc'
 oae_hourofday_nc = 'hourofday.nc'
 oae_dayofweek_nc = 'dayofweek.nc'
 oae_monthofyear_nc = 'monthofyear.nc'
 
-#oae_hourofyear_nc = 'hourofyear.nc'
+# oae_hourofyear_nc = 'hourofyear_2022.nc'#'HourOfYear_tp_emissions_Temperature_coeffs.nc'
 
 # VPRM ------------------------------------------------------------------------
 # ICON-ART VPRM coefficients calculated using MODIS data
 online_vprm_dir = '/users/nponomar/MODIS/modis2grid/Data'
-#vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22.nc'
-vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22_full.nc'
+#vprm_coeffs_nc = 'VPRM_indices_ICON_ZH_22.nc'
+vprm_coeffs_nc = 'VPRM_indices_ICON_ZH_22_full.nc'
 vprm_regions_synth_nc = 'regions_synth.nc' 
 vprm_lambdas_synth_nc = 'lambdas_synth.nc'
 
@@ -139,20 +144,21 @@ vprm_lambdas_synth_nc = 'lambdas_synth.nc'
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
-icon_bin = os.path.join(exe_dir, "icon_co2_vprm_swsfcflx")
-#icon_bin = os.path.join(exe_dir, "icon_oem_emissions")
+icon_bin = os.path.join(exe_dir, "icon")#_co2_vprm_swsfcflx
+
 # Namelists and slurm runscript templates
-icon_runjob = os.path.join(case_dir, 'icon_runjob.cfg')
+# icon_runjob = os.path.join(case_dir, 'icon_runjob.cfg')
+icon_runjob = os.path.join(case_dir, 'ZH_Shweta.cfg')
 icon_namelist_master = os.path.join(case_dir, 'icon_master.namelist.cfg')
 icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 
 # Walltimes and domain decomposition
 if compute_queue == "normal":
-    icon_walltime = "24:00:00"
-    icon_np_tot = 16
+    icon_walltime = "8:00:00"
+    icon_np_tot = 32
 elif compute_queue == "debug":
     icon_walltime = "00:30:00"
-    icon_np_tot = 2
+    icon_np_tot = 10
 else:
     logging.error("Unknown queue name: %s" % compute_queue)
     sys.exit(1)
