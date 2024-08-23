@@ -18,5 +18,6 @@ from . import online_vprm
 from . import octe
 from . import check_output
 from . import icon
+from . import icon_res
 from . import ctdas
-from . import ctdas_prepare_scripts
+from . import ctdas_prepare_scripts_no_overlap

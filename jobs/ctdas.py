@@ -22,7 +22,8 @@ def main(starttime, hstart, hstop, cfg):
     execname = 'icon.exe'
     execname_bg = 'icon_bg.exe'
     tools.copy_file(cfg.icon_bin, os.path.join(cfg.icon_work, execname))
-    tools.copy_file(cfg.icon_bin, os.path.join(cfg.icon_work+'_bg', execname_bg))
+    if cfg.ctdas_BG_run:
+        tools.copy_file(cfg.icon_bin, os.path.join(cfg.icon_work+'_bg', execname_bg))
     
     setattr(
             cfg, 'ctdas_exec',
@@ -57,6 +58,7 @@ def main(starttime, hstart, hstop, cfg):
                          'rc',
                          'cteco2',
                          'carbontracker_icon_' + cfg.ini_datetime_string +'.rc'))
+
     setattr(
             cfg, 'ctdas_rc',
             os.path.join(cfg.ctdas_exec,
@@ -99,6 +101,27 @@ def main(starttime, hstart, hstop, cfg):
     tools.copy_file(cfg.ctdas_observations,
                         os.path.join(cfg.icon_base, "input", "observations")) 
 
+    #ZH case link ini conditions for the first simulation
+    inidata = os.path.join(
+                    cfg.icon_base,
+                    'input',
+                    'icbc',
+                    starttime.strftime(cfg.meteo_nameformat) + '.nc')
+    link = os.path.join(
+                    cfg.art_input_folder, #ART input folder same as specified in ICON nml
+                    'ART_ICE_iconR19B09-grid_.nc' #ini5 from processing chain
+                    )   
+    os.system('ln -sf ' + inidata + ' ' + link)
+    # inidata_bg = os.path.join(
+    #                 cfg.icon_base,
+    #                 'input',
+    #                 'icbc_bg',
+    #                 starttime.strftime(cfg.meteo_nameformat) + '.nc')
+    # link_bg = os.path.join(                     #link ini for the bg run
+    #                 cfg.art_input_folder_bg, #ART input folder same as specified in ICON nml
+    #                 'ART_ICE_iconR19B09-grid_.nc' #ini5 from processing chain
+    #                 )   
+    # os.system('ln -sf ' + inidata_bg + ' ' + link_bg)
 
     exitcode = subprocess.call(
         ["sbatch", "--wait",

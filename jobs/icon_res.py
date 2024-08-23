@@ -45,6 +45,10 @@ def main(starttime, hstart, hstop, cfg):
             restart_switch = '.FALSE.'
         else:
             restart_switch = '.TRUE.' 
+        if time.year == 2023:
+            vegetation_indices_nc = cfg.vprm_coeffs_nc23
+        else:
+            vegetation_indices_nc = cfg.vprm_coeffs_nc22
         with open(output_file, "w") as outf:
             outf.write(
                 to_write.format(cfg=cfg,
@@ -53,6 +57,7 @@ def main(starttime, hstart, hstop, cfg):
                                 ini_restart_end_string=end_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                 inifile=inidata_filename,
                                 inidata_filename=inidata_filename,
+                                vegetation_indices_nc = vegetation_indices_nc,
                                 output_directory = cfg.icon_output,
                                 logfile=logfile,
                                 logfile_finish=logfile_finish
@@ -62,7 +67,8 @@ def main(starttime, hstart, hstop, cfg):
             inidata = inidata_filename
             link = os.path.join(
                             cfg.art_input_folder, #ART input folder same as specified in ICON nml
-                            'ART_ICE_iconR19B09-grid_.nc' #ini5 from processing chain
+                            # 'ART_ICE_iconR19B09-grid_.nc' #ini5 from processing chain
+                            cfg.init_file_link
                             )  
             os.system('ln -sf ' + inidata + ' ' + link)
 

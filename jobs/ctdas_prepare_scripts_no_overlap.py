@@ -52,7 +52,9 @@ def main(starttime, hstart, hstop, cfg):
     #File with initial conditions
     inidata_filename = os.path.join(cfg.icon_input_icbc,
                                     (starttime).strftime(cfg.meteo_nameformat) + '.nc')
-
+    #File with boundary regions
+    boundary_mask_file = cfg.ctdas_boundary_mask_file
+    
     for time in tools.iter_hours(starttime, hstart, hstop, cfg.restart_cycle_window/(3600)):
         
         current_cycle_ini_date = time.strftime('%Y%m%d%H')
@@ -70,13 +72,17 @@ def main(starttime, hstart, hstop, cfg):
             restart_switch = '.FALSE.'
         else:
             restart_switch = '.TRUE.' 
-
+        if time.year == 2023:
+            vegetation_indices_nc = cfg.vprm_coeffs_nc23
+        else:
+            vegetation_indices_nc =cfg.vprm_coeffs_nc22
         # Write ctdas_extract_template_scratch file
 
         icon_path_var = os.path.join(cfg.icon_base, 'output', 'output_%s_'%(current_cycle_ini_date))
         extracted_file_var = os.path.join(cfg.icon_base, 'extracted','output_%s_'%(current_cycle_ini_date))
         extracted_boundary_file_var = os.path.join(cfg.icon_base, 'extracted','output_bg_%s_'%(current_cycle_ini_date)) # in this case the same as for the emis file
         lambda_fs = os.path.join(cfg.icon_base, 'input','oae','lambda_%s_'%(current_cycle_ini_date))
+        bglambda_fs = os.path.join(cfg.icon_base, 'input','oae','bg_lambda_%s_'%(current_cycle_ini_date))
         logfile = os.path.join(cfg.icon_work, 'icon_'+ current_cycle_ini_date)
         # logfile_finish = os.path.join(cfg.log_finished_dir, "icon" + current_cycle_ini_date)
 
@@ -90,7 +96,7 @@ def main(starttime, hstart, hstop, cfg):
                                 icon_path=cfg.icon_output + '_' + (time).strftime('%Y%m%d%H') + '_' + cfg.suffixprior,
                                 fname_base='ICON-ART-UNSTR',
                                 stationdir=cfg.ctdas_observations_dir,
-                                nneighb=5, 
+                                nneighb=5,
                                 start=time, # + timedelta(hours=1),
                                 end=end_time,
                                 extracted_file=extracted_file_var+cfg.suffixprior))
@@ -101,7 +107,7 @@ def main(starttime, hstart, hstop, cfg):
                                 icon_path=cfg.icon_output + '_' + (time).strftime('%Y%m%d%H') + '_' + cfg.suffixprior1,
                                 fname_base='ICON-ART-UNSTR',
                                 stationdir=cfg.ctdas_observations_dir,
-                                nneighb=5, 
+                                nneighb=5,
                                 start=time,# + timedelta(hours=1),
                                 end=end_time,
                                 extracted_file=extracted_file_var+cfg.suffixprior1))
@@ -156,8 +162,13 @@ def main(starttime, hstart, hstop, cfg):
         with open(cfg.ctdas_restart_template) as input_file:
             to_write = input_file.read()
         output_file = os.path.join(cfg.icon_work, 'runscript_'+ current_cycle_ini_date)
-
+        ###Do not perturb initial conditions of the second simulation during the first assimilation cycle
+        if time == starttime + timedelta(days=cfg.restart_cycle_window/(3600*24)):
+            p_ic_prior = '.FALSE.'
+        else:
+            p_ic_prior = '.TRUE.'
         with open(output_file+cfg.suffixprior, "w") as outf:
+
             outf.write(
                 to_write.format(cfg=cfg,
                                 ini_restart_string=(starttime).strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -166,6 +177,10 @@ def main(starttime, hstart, hstop, cfg):
                                 restart_switch = restart_switch,
                                 icon_path=icon_path_var+cfg.suffixprior,
                                 lambda_f=lambda_fs+cfg.suffixprior + '.nc',
+                                bgmask=boundary_mask_file,
+                                p_ic = p_ic_prior,
+                                vegetation_indices_nc=vegetation_indices_nc,
+                                bglambda_f=bglambda_fs + cfg.suffixprior + '.nc',
                                 logfile = logfile + cfg.suffixprior,
                                 restart_file_path=os.path.join(cfg.res_folder_prior, "restart_atm_<rsttime>.nc"),
                                 inidata_filename=inidata_filename,
@@ -184,6 +199,10 @@ def main(starttime, hstart, hstop, cfg):
                                 icon_path=icon_path_var+cfg.suffixprior1,
                                 logfile = logfile + cfg.suffixprior1,
                                 lambda_f=lambda_fs+cfg.suffixprior1 + '.nc',
+                                bgmask=boundary_mask_file,
+                                p_ic = '.TRUE.', 
+                                vegetation_indices_nc=vegetation_indices_nc,
+                                bglambda_f=bglambda_fs + cfg.suffixprior1 + '.nc',
                                 restart_file_path=os.path.join(cfg.res_folder_prior1, "restart_atm_<rsttime>.nc"),
                                 inidata_filename=inidata_filename,
                                 output_directory = cfg.icon_output + '_' + (time).strftime('%Y%m%d%H') + '_' + cfg.suffixprior1,
@@ -200,6 +219,10 @@ def main(starttime, hstart, hstop, cfg):
                                 icon_path=icon_path_var+cfg.suffixopt,
                                 logfile = logfile + cfg.suffixopt,
                                 lambda_f=lambda_fs+cfg.suffixopt + '.nc',
+                                bgmask=boundary_mask_file,
+                                p_ic = '.TRUE.',
+                                vegetation_indices_nc=vegetation_indices_nc,
+                                bglambda_f=bglambda_fs + cfg.suffixopt + '.nc',
                                 restart_file_path=os.path.join(cfg.res_folder_opt, "restart_atm_<rsttime>.nc"),
                                 inidata_filename=inidata_filename,
                                 output_directory = cfg.icon_output + '_' + (time).strftime('%Y%m%d%H') + '_' + cfg.suffixopt,
