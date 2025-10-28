@@ -10,10 +10,10 @@ if os.path.exists(os.environ['HOME'] + '/.acct'):
         compute_account = file.read().rstrip()
 else:
     compute_account = os.popen("id -gn").read().splitlines()[0]
-compute_account = 's1302'
-compute_host = 'daint'
+compute_account = 's1298'
+compute_host = 'eiger'
 compute_queue = 'normal'  # 'normal' / 'debug'
-constraint = 'gpu'  # 'mc' / 'gpu'
+constraint = 'mc'  # 'mc' / 'gpu'
 Init_from_ICON = True
 target = 'icon-art-oem'
 restart_step = 240000  # hours
@@ -21,40 +21,40 @@ restart_cycle_window = 604800 #7 days in sec 3600*24*7
 if constraint == 'gpu':
     ntasks_per_node = 12
 elif constraint == 'mc':
-    ntasks_per_node = 36
+    ntasks_per_node = 128
 
 #Path to the CTDAS root directory
-ctdas_root = '/scratch/snx3000/nponomar/ctdas-icon_case8'
+ctdas_root = '/capstor/scratch/cscs/nponomar/ctdas-icon_case8'
 Init_from_ICON = False
 # case name = pathname in cases/
 path = os.path.realpath(__file__)
 casename = os.path.basename(os.path.dirname(path))
 
 # Root directory of the sourcecode of the chain (where run_chain.py is)
-chain_src_dir = os.path.join('/scratch/snx3000/nponomar/processing_chain_python/', 'processing-chain')
+chain_src_dir = os.path.join('/capstor/scratch/cscs/nponomar/processing_chain_python/', 'processing-chain')
 
 # Root directory of the working space of the chain
 work_root = os.path.join(chain_src_dir, 'work')
 
 # Directory where executables are stored
 #exe_dir = "/users/nponomar/icon-art-vprm/config/cscs/spack/bin"
-exe_dir = "/scratch/snx3000/nponomar/icon_art_oem4merging/icon-oem-empa/icon-kit/cpu/bin"
+exe_dir = "/capstor/scratch/cscs/nponomar/icon-kit/cpu/bin/"
 # Case directory
 case_dir = os.path.join(chain_src_dir, 'cases', casename)
 
 # PREPARE_DATA ---------------------------------------------------------------
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
 
-input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
+input_root_meteo = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
 meteo_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
 #meteo_prefix = 'ICON-ART-OEM_DOM01_'
 meteo_nameformat = meteo_prefix + '%Y%m%dT%H'
 meteo_suffix = '0000Z.nc'
 meteo_inc = 1
 remapping_method = 'remapdis' #e.g., remapbil, remapdis
-input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
+input_root_chem = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
 
-input_root_icbc = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
+input_root_icbc = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4248/icon/output'
 chem_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
 chem_nameformat = chem_prefix + '%Y%m%d'+'T'+'%H'
 chem_suffix = '0000Z.nc'
@@ -73,7 +73,7 @@ icontools_runjobs = [
 
 # Icontools executables
 #icontools_dir = '/project/s903/mjaehn/spack-install/daint/icontools/master/cce/ldcbgsjjzq2p73xbei7ws4wce5ivzxer/bin/'
-icontools_dir = '/scratch/snx3000/nponomar/spack-install/daint/icontools/c2sm-master/gcc/hv7e5pklc6hyntvowrgkywb6rrwzdevb/bin'
+icontools_dir = '/capstor/scratch/cscs/nponomar/spack-install/daint/icontools/c2sm-master/gcc/hv7e5pklc6hyntvowrgkywb6rrwzdevb/bin'
 iconremap_bin = os.path.join(icontools_dir, "iconremap")
 iconsub_bin = os.path.join(icontools_dir, "iconsub")
 
@@ -120,11 +120,11 @@ chemtracer_xml_filename = os.path.join(input_root_tracers,
                                     # 'vprm_bg_ens_test.xml')
                                     'vprm_ensemble_co2_186_2022.xml')
 pntSrc_xml_filename = os.path.join(input_root_tracers, 'boundaries_run.xml')
-art_input_folder = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/ART_case8'
-art_input_folder_bg = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/ART_bg'
+art_input_folder = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/ART_case8'
+art_input_folder_bg = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/ART_bg'
 # OAE ------------------------------------------------------------------------
 # Online anthropogenic emissions
-oae_dir = '/scratch/snx3000/nponomar/Emissions/'
+oae_dir = '/capstor/scratch/cscs/nponomar/Emissions/'
 # oae_gridded_emissions_nc = 'oem_gridded_emissions_HR.nc'
 oae_gridded_emissions_nc = 'oem_gridded_emissions_HR_22_LPS_2.nc'
 oae_vertical_profiles_nc = 'vertical_profiles_HR_ZH.nc'
@@ -142,59 +142,59 @@ ctdas_cycle = 7
 ctdas_nlag = 2
 ctdas_nreg_params = 2926#3588 #2547
 ctdas_tracer = 'co2'
-ctdas_observations = '/scratch/snx3000/nponomar/ICOS_obs_data/Extracted_obs_case_8/Extracted_ZHcyl_obs__20220701_20221223alldates_masl_inlet_cyl.nc'
-ctdas_observations_dir = '/scratch/snx3000/nponomar/ICOS_obs_data/Extracted_obs_case_8'
-ctdas_dir = '/scratch/snx3000/nponomar/ctdas-icon_case8/exec'
+ctdas_observations = '/capstor/scratch/cscs/nponomar/ICOS_obs_data/Extracted_obs_case_8/Extracted_ZHcyl_obs__20220701_20221223alldates_masl_inlet_cyl.nc'
+ctdas_observations_dir = '/capstor/scratch/cscs/nponomar/ICOS_obs_data/Extracted_obs_case_8'
+ctdas_dir = '/capstor/scratch/cscs/nponomar/ctdas-icon_case8/exec'
 ctdas_obsoperator_home = '/scratch/snx3000/msteiner/ctdas_test/exec/da/rc/stilt'
 ctdas_obsoperator_rc = os.path.join(ctdas_obsoperator_home, 'stilt_0.rc')
-ctdas_sv_distances = '/scratch/snx3000/nponomar/CTDAS_data/Loc_Cov_matrix_distances_ZH_parent_domain.nc'
-ctdas_op_loc_coeffs = '/scratch/snx3000/nponomar/CTDAS_data/Loc_K_matrix_distances_ZH_parent_domain.nc' #'/scratch/snx3000/nponomar/CTDAS_data/Loc_K_matrix_distances_ZH_parent_domain.nc'
-ctdas_first_restart_init = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_ENSEMBLE_testing/2022070100_0_24/icon/output_32nodes'
+ctdas_sv_distances = '/capstor/scratch/cscs/nponomar/CTDAS_data/Loc_Cov_matrix_distances_ZH_parent_domain.nc'
+ctdas_op_loc_coeffs = '/capstor/scratch/cscs/nponomar/CTDAS_data/Loc_K_matrix_distances_ZH_parent_domain.nc' #'/capstor/scratch/cscs/nponomar/CTDAS_data/Loc_K_matrix_distances_ZH_parent_domain.nc'
+ctdas_first_restart_init = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_ENSEMBLE_testing/2022070100_0_24/icon/output_32nodes'
 ctdas_bg_params = 8
-ctdas_first_restart_init_bg = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/CTDAS/2022070200_0_672/icon/output_bg_2022070200_firstsim'
+ctdas_first_restart_init_bg = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/CTDAS/2022070200_0_672/icon/output_bg_2022070200_firstsim'
 boundaries_xml = '/users/nponomar/Emissions/boundaries_run.xml'
-ctdas_datadir = '/scratch/snx3000/nponomar/ICOS_obs_data/Extracted_obs_case_8'
+ctdas_datadir = '/capstor/scratch/cscs/nponomar/ICOS_obs_data/Extracted_obs_case_8'
 ctdas_system_localization = 'spatial'
 ctdas_optimizer_nmembers = 186 #8213 #24000 #186 3540
 ctdas_optimizer_nmembers_comb = 186 #54000 #60 * 30 * 30 
 ctdas_ncategories = 3
 ctdas_nparameters = 8786 #10772 #7649 #5094 #17829 #5094 # for example: 13 co2 flux categories: A, RA, GPP * ctdas_nreg_params (number of regions used in data assimilation) + ctdas_bg_params (number of bg regions)
-ctdas_obspack_input_dir = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/TRANSCOM_2013_fwd'
+ctdas_obspack_input_dir = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/TRANSCOM_2013_fwd'
 ctdas_obs_input_dir = os.path.join(ctdas_datadir, 'core')
 ctdas_obs_input_fname = 'obs_forecast.nc'
 ctdas_regtype = 'olson19_oif30'
-ctdas_regionsfile = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/CTDAS_ZH_case8/2022090100_0_9000/icon/input/vprm/Regions_new.nc'
+ctdas_regionsfile = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/CTDAS_ZH_case8/2022081800_0_9360/icon/input/vprm/Regions_new.nc'
 ctdas_obs_sites_rc = os.path.join(ctdas_datadir, 'sites_weights_icos.rc')
-ctdas_extract_template = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/extract_template_icos_ZH_synth'
-cdtdas_extract_boundaries_template = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/extract_boundaries_template_icos_ZH'
-ctdas_boundary_lamdas_file = '/scratch/snx3000/nponomar/plt_py/boundary_lambdas_ZH.nc'
-ctdas_boundary_mask_file = '/scratch/snx3000/nponomar/plt_py/boundary_mask_ZH_beov3_ic_order.nc'
-cdtdas_runscript_boundaries_template = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/runscript_template_boundaries_icos_ZH'
-ctdas_restart_template = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/runscript_template_icos_ZH_New_VPRM_ref'
-ctdas_sbatch_extract_template = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates/sbatch_extract_template'
+ctdas_extract_template = '/capstor/scratch/cscs/nponomar/processing-chain/cases/runscript_templates/extract_template_icos_ZH_synth'
+cdtdas_extract_boundaries_template = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/extract_boundaries_template_icos_ZH'
+ctdas_boundary_lamdas_file = '/capstor/scratch/cscs/nponomar/plt_py/boundary_lambdas_ZH.nc'
+ctdas_boundary_mask_file = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/CTDAS_ZH_case8/2022081800_0_9360/icon/input/boundary_mask_ZH_beov3_ic_order.nc'
+cdtdas_runscript_boundaries_template = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates_ZH/runscript_template_boundaries_icos_ZH'
+ctdas_restart_template = '/capstor/scratch/cscs/nponomar/processing-chain/cases/runscript_templates/runscript_template_icos_ZH_New_VPRM_ref'
+ctdas_sbatch_extract_template = '/capstor/scratch/cscs/nponomar/processing-chain/cases/runscript_templates/sbatch_extract_template'
 ctdas_emissions_time_suffix = '%Y_%m_%d'
-ctdas_sv_gcdistances = '/scratch/snx3000/nponomar/CTDAS_data/Specific_length_matrix_distances_ZH_parent_domain_5_8km.nc'
+ctdas_sv_gcdistances = '/capstor/scratch/cscs/nponomar/CTDAS_data/Specific_length_matrix_distances_ZH_parent_domain_5_8km.nc'
 ctdas_op_logarithm = 'serial' #'bulk' #'serial'
-ctdas_op_station_dists = '/scratch/snx3000/nponomar/CTDAS_data/R_matrix_station_by_station_distances_lowcost_sensors.nc'#'/scratch/snx3000/nponomar/CTDAS_data/R_matrix_station_by_station_distances_16midcost_sensors.nc'
+ctdas_op_station_dists = '/capstor/scratch/cscs/nponomar/CTDAS_data/R_matrix_station_by_station_distances_lowcost_sensors.nc'#'/capstor/scratch/cscs/nponomar/CTDAS_data/R_matrix_station_by_station_distances_16midcost_sensors.nc'
 #ctdas_restart_init_time = 86400 #sec
 
 # VPRM ------------------------------------------------------------------------
 # ICON-ART VPRM coefficients calculated using MODIS data
-online_vprm_dir = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/input/vprm/'
+online_vprm_dir = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/input/vprm/'
 #vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22.nc'
 vprm_coeffs_nc = 'VPRM_indices_ICON_ZH_22Full_Beov3.nc'
 vprm_regions_synth_nc = 'Regions_new.nc' 
 vprm_lambdas_synth_nc = 'Lambdas_for_vprm_ens_co2_185_ZH.nc'
 boundary_regions_nc = 'boundary_mask_ZH.nc'
-vprm_coeffs_nc23 = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_ZH_22/2022070100_0_9000/icon/input/vprm/VPRM_indices_ICON_ZH_22_23_new.nc'
-vprm_coeffs_nc22 = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_ZH_22/2022070100_0_9000/icon/input/vprm/VPRM_indices_ICON_ZH_22_23_new.nc'
+vprm_coeffs_nc23 = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/CTDAS_ZH_case8/2022081800_0_9360/icon/input/vprm/VPRM_indices_ICON_Zurich_23.nc'
+vprm_coeffs_nc22 = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_ZH_22/2022070100_0_9000/icon/input/vprm/VPRM_indices_ICON_ZH_22_23_new.nc'
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
 icon_bin = os.path.join(exe_dir, "icon")
 
 # Namelists and slurm runscript templates
-icon_runjob = '/scratch/snx3000/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates/runscript_template_restart'
+icon_runjob = '/capstor/scratch/cscs/nponomar/ICON_ctdas_msteiner/runscripts/CTDAS/templates/runscript_template_restart'
 icon_namelist_master = os.path.join(case_dir, 'icon_master.namelist.cfg')
 icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 
