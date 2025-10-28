@@ -10,17 +10,18 @@ if os.path.exists(os.environ['HOME'] + '/.acct'):
         compute_account = file.read().rstrip()
 else:
     compute_account = os.popen("id -gn").read().splitlines()[0]
-compute_host = 'daint'
+compute_account = 'em05'
+compute_host = 'eiger'
 compute_queue = 'normal'  # 'normal' / 'debug'
-constraint = 'mc'  # 'mc' / 'gpu'
+constraint = 'mc'  # 'mc' / 'mc'
 
 Init_from_ICON = False
 
 target = 'icon-art-oem'
 restart_step = 240000  # hours
-
-if constraint == 'gpu':
-    ntasks_per_node = 12
+restart_cycle_window = 2649600 #2592000 #secs
+if constraint == 'mc':
+    ntasks_per_node = 4
 elif constraint == 'mc':
     ntasks_per_node = 36
 
@@ -29,14 +30,17 @@ path = os.path.realpath(__file__)
 casename = os.path.basename(os.path.dirname(path))
 
 # Root directory of the sourcecode of the chain (where run_chain.py is)
-chain_src_dir = os.path.join('/scratch/snx3000/nponomar/processing_chain_python/', 'processing-chain')
+chain_src_dir = os.path.join('/capstor/scratch/cscs/nponomar/processing_chain_python/', 'processing-chain')
+# chain_src_dir = '/capstor/scratch/cscs/nponomar/processing-chain/'
 
 # Root directory of the working space of the chain
 work_root = os.path.join(chain_src_dir, 'work')
 
 # Directory where executables are stored
-exe_dir = "/scratch/snx3000/nponomar/icon-vprm-try2/icon-vprm/bin"
+# exe_dir = "/capstor/scratch/cscs/nponomar/icon-kit/cpu/bin"
+# exe_dir =  "/capstor/scratch/cscs/nponomar/icon-gpu/icon-kit/gpu/bin/"
 #exe_dir = "/users/nponomar/icon-art-vprm/config/cscs/spack/bin"
+exe_dir = '/capstor/scratch/cscs/nponomar/icon-kit/cpu/bin/'
 
 # Case directory
 case_dir = os.path.join(chain_src_dir, 'cases', casename)
@@ -44,32 +48,32 @@ case_dir = os.path.join(chain_src_dir, 'cases', casename)
 # PREPARE_DATA ---------------------------------------------------------------
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
 
-input_root_meteo = '/scratch/snx3000/nponomar/ERA5/2022/concatenated'
+input_root_meteo = '/capstor/scratch/cscs/nponomar/EU_ICBC/era5_data/concatenated/'
 meteo_prefix = 'era5_'
 meteo_nameformat = meteo_prefix + '%Y%m%d%H'
 meteo_suffix = '.nc'
 meteo_inc = 1
 
-input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/CAMS_hourly_data_interpolated_Dominik/converted'
+input_root_chem = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/CAMS_hourly_data/'
 
 input_root_icbc = os.path.join(input_root, 'icbc')
-chem_prefix = 'cams_hlkx_'
+chem_prefix = 'cams73'
 chem_nameformat = chem_prefix + '%Y%m%d%H'
-chem_suffix = '.nc'
+chem_suffix = ''
 chem_inc = 1
 
 icontools_runjobs = [
     'icontools_remap_ic_runjob.cfg',
-    'icontools_remap_00_lbc_runjob.cfg',
-    'icontools_remap_lbc_rest_runjob.cfg',
-    'icontools_remap_ic_chem_runjob.cfg',
-    'icontools_remap_lbc_chem_runjob.cfg',
+    # 'icontools_remap_00_lbc_runjob.cfg',
+    # 'icontools_remap_lbc_rest_runjob.cfg',
+    # 'icontools_remap_ic_chem_runjob.cfg',
+    # 'icontools_remap_lbc_chem_runjob.cfg',
 ]
 
 # Icontools executables
 #icontools_dir = '/project/s903/mjaehn/spack-install/daint/icontools/master/cce/ldcbgsjjzq2p73xbei7ws4wce5ivzxer/bin/'
-icontools_dir = '/scratch/snx3000/nponomar/spack-install/daint/icontools/c2sm-master/gcc/a3xbhvwqfcpr2q7n5gx5ucyg5rspepdx/bin'
-#icontools_dir = '/scratch/snx3000/nponomar/icon-vprm/bin'
+icontools_dir = '/capstor/scratch/cscs/nponomar/spack-install/daint/icontools/c2sm-master/gcc/a3xbhvwqfcpr2q7n5gx5ucyg5rspepdx/bin'
+#icontools_dir = '/capstor/scratch/cscs/nponomar/icon-vprm/bin'
 iconremap_bin = os.path.join(icontools_dir, "iconremap")
 iconsub_bin = os.path.join(icontools_dir, "iconsub")
 
@@ -84,12 +88,12 @@ input_root_grid = os.path.join(input_root, 'grids')
 #ICOS EU domain
 input_root_grid = os.path.join(input_root, 'grids')
 #input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
-input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
+input_root_grid_ICOS = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022090100_0_9000/icon/input/grid'
 radiation_grid_filename = os.path.join(input_root_grid_ICOS,
                                        "icon_europe_DOM01.parent.nc")
 dynamics_grid_filename = os.path.join(input_root_grid_ICOS, "icon_europe_DOM01.nc")
 
-input_root_mapping = '/users/nponomar/Mapping'
+input_root_mapping = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022090100_0_9000/icon/input/mapping'
 map_file_ana = os.path.join(input_root_mapping, "map_file.ana")
 
 map_file_latbc = os.path.join(input_root_mapping, "map_file.latbc")
@@ -110,23 +114,23 @@ output_filename = "icon-art-test"
 filename_format = "<output_filename>_DOM<physdom>_<datetime2>"
 
 # ART settings----------------------------------------------------------------
-input_root_tracers = '/users/nponomar/Emissions/'
+input_root_tracers = '/capstor/scratch/cscs/nponomar'
 chemtracer_xml_filename = os.path.join(input_root_tracers,
-                                       'tracers_oh_EU_Lionel_emis.xml')
+                                       'Hoy_EU.xml')
 pntSrc_xml_filename = os.path.join(input_root_tracers, 'pntSrc_example.xml')
-art_input_folder = os.path.join(input_root, 'ART')
+art_input_folder = os.path.join(input_root, 'ART_EU')
 
 # OAE ------------------------------------------------------------------------
 # Online anthropogenic emissions
-oae_dir = '/users/nponomar/Emissions/'
-oae_gridded_emissions_nc = 'icon_europe_DOM01_with_tno_emissions.nc'
-oae_vertical_profiles_nc = 'vertical_profiles_t1.nc'
+oae_dir = '/users/nponomar/Emissions/Hour_of_year/'
+oae_gridded_emissions_nc = 'icon_europe_DOM01_with_tno_emissions_HR.nc'
+oae_vertical_profiles_nc = 'vertical_profiles_t1_HR.nc'
 oae_hourofday_nc = 'hourofday.nc'
 oae_dayofweek_nc = 'dayofweek.nc'
 oae_monthofyear_nc = 'monthofyear.nc'
 
-#oae_hourofyear_nc = 'hourofyear.nc'
-
+oae_hourofyear_nc = 'hourofyear_July22July23_EU_norm.nc'#'hourofyear_23_EU_norm_DST.nc'
+lateral_boundary_grid = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022090100_0_9000/icon/input/grid/lateral_boundary.grid.nc'
 # VPRM ------------------------------------------------------------------------
 # ICON-ART VPRM coefficients calculated using MODIS data
 online_vprm_dir = '/users/nponomar/MODIS/modis2grid/Data'
@@ -135,14 +139,16 @@ vprm_coeffs_nc = 'VPRM_indices_ICON_EU_22_full.nc'
 vprm_regions_synth_nc = 'regions_synth.nc' 
 vprm_lambdas_synth_nc = 'lambdas_synth.nc'
 
-
+# vprm_coeffs_nc23 = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_9000/icon/input/vprm/VPRM_indices_ICON_EU_23Aug_datestr.nc'
+vprm_coeffs_nc22 = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022081800_0_9000/icon/input/vprm/VPRM_ICON_EU_22_23_datestr.nc'
+vprm_coeffs_nc23 = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022081800_0_9000/icon/input/vprm/VPRM_ICON_EU_23_datestr.nc'
 # SIMULATION =================================================================
 # ICON -----------------------------------------------------------------------
 # Executable
-icon_bin = os.path.join(exe_dir, "icon_co2_vprm_swsfcflx")
+icon_bin = os.path.join(exe_dir, "icon")
 #icon_bin = os.path.join(exe_dir, "icon_oem_emissions")
 # Namelists and slurm runscript templates
-icon_runjob = os.path.join(case_dir, 'icon_runjob.cfg')
+icon_runjob = os.path.join('/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/cases/VPRM_EU_ERA5_22/icon_runjob_res_new_cpu.cfg')
 icon_namelist_master = os.path.join(case_dir, 'icon_master.namelist.cfg')
 icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 
