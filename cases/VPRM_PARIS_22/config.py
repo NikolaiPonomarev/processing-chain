@@ -10,10 +10,10 @@ if os.path.exists(os.environ['HOME'] + '/.acct'):
         compute_account = file.read().rstrip()
 else:
     compute_account = os.popen("id -gn").read().splitlines()[0]
-compute_host = 'daint'
+compute_host = 'santis'
 compute_queue = 'normal'  # 'normal' / 'debug'
-constraint = 'mc'  # 'mc' / 'gpu'
-
+constraint = 'gpu'  # 'mc' / 'gpu'
+compute_account = 's1302'
 target = 'icon-art-oem'
 restart_step = 24000  # hours
 Init_from_ICON = True
@@ -21,7 +21,7 @@ Init_from_ICON = True
 restart_cycle_window = 2592000 #2592000 #secs
 # restart_cycle_window = 2649600
 if constraint == 'gpu':
-    ntasks_per_node = 12
+    ntasks_per_node = 4
 elif constraint == 'mc':
     ntasks_per_node = 36
 
@@ -30,7 +30,7 @@ path = os.path.realpath(__file__)
 casename = os.path.basename(os.path.dirname(path))
 
 # Root directory of the sourcecode of the chain (where run_chain.py is)
-chain_src_dir = os.path.join('/scratch/snx3000/nponomar/processing_chain_python/', 'processing-chain')
+chain_src_dir = os.path.join('/capstor/scratch/cscs/nponomar/processing_chain_python/', 'processing-chain')
 
 # Root directory of the working space of the chain
 work_root = os.path.join(chain_src_dir, 'work')
@@ -45,7 +45,7 @@ case_dir = os.path.join(chain_src_dir, 'cases', casename)
 input_root = '/store/empa/em05/input_iconart_processing_chain_example/'
 #/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_coupled_not/2018010100_0_24/icon/output/ICON-ART-OEM_DOM01_20180101T030000Z.nc
 #input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_4416/icon/output'
-input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_9000/icon/output/'
+input_root_meteo = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2023081800_0_9000/icon/output/'
 # input_root_meteo = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_24/icon/output'
 meteo_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
 #meteo_prefix = 'ICON-ART-OEM_DOM01_'
@@ -53,10 +53,10 @@ meteo_nameformat = meteo_prefix + '%Y%m%dT%H'
 meteo_suffix = '0000Z.nc'
 meteo_inc = 1
 remapping_method = 'remapdis' #e.g., remapbil, remapdis
-input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_9000/icon/output/'
+input_root_chem = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2023081800_0_9000/icon/output/'
 # input_root_chem = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_24/icon/output'
 
-input_root_icbc = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_9000/icon/output/'
+input_root_icbc = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2023081800_0_9000/icon/output/'
 # input_root_icbc = '/scratch/snx3000/nponomar/processing_chain_python/processing-chain/work/VPRM_EU_ERA5_22/2022070100_0_24/icon/output'
 
 chem_prefix = 'ICON-ART-UNSTRUCTURED_DOM01_'
@@ -92,7 +92,7 @@ input_root_grid = os.path.join(input_root, 'grids')
 #ICOS EU domain
 input_root_grid = os.path.join(input_root, 'grids')
 #input_root_grid_ICOS = '/users/nponomar/icon-art/icon/grids'
-input_root_grid_ICOS = '/scratch/snx3000/nponomar/grids'
+input_root_grid_ICOS = '/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/work/VPRM_PARIS_22/2023081800_0_3240/icon/input/grid'
 radiation_grid_filename = os.path.join(input_root_grid_ICOS,
                                        "domain1_DOM01.parent.nc")
                                     #    "icon_Zurich_R19B9_wide_DOM01.parent.nc")
@@ -162,7 +162,7 @@ icon_namelist_nwp = os.path.join(case_dir, 'icon_NAMELIST_NWP.cfg')
 # Walltimes and domain decomposition
 if compute_queue == "normal":
     icon_walltime = "8:00:00"
-    icon_np_tot = 16
+    icon_np_tot = 4
 elif compute_queue == "debug":
     icon_walltime = "00:30:00"
     icon_np_tot = 10

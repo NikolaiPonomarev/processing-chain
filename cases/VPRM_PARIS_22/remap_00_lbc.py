@@ -32,7 +32,7 @@ def remap_00_lbc(file):
     #print('cdo -s '+remapping_method+',triangular-grid_00_lbc.nc -selname,PS,T,U,V,W,QV,QI,QR,QC,QS,GEOSP,GEOP_ML,DEN,THETA_V,HHL,CO2_RA,CO2_GPP,TRCO2_BG_chemtr,TRCO2_A_chemtr tmp200.nc ' + output_file_name)
     #print('ncrename -d cell,ncells ' +output_file_name)
     #print('ncrename -d nv,vertices ' +output_file_name)
-    os.system('cdo -L setpartabn,/scratch/snx3000/nponomar/Emissions/mypartab_lbc,convert -selname,pres,temp,u,v,w,qv,qi,qr,qc,qs,fis,geopot,rho,theta_v,z_ifc,CO2_RA,CO2_GPP,TRCO2_BG_chemtr,TRCO2_Anthropogenic_chemtr ' + input_file_name + ' tmp200'+os.path.basename(file)[:-8]+'.nc')
+    os.system('cdo -L setpartabn,/capstor/scratch/cscs/nponomar/processing_chain_python/processing-chain/cases/VPRM_PARIS_22/mypartab_lbc,convert -selname,pres,temp,u,v,w,qv,qi,qr,qc,qs,fis,geopot,rho,theta_v,z_ifc,CO2_RA,CO2_GPP,TRCO2_BG_chemtr,TRCO2_Anthropogenic_chemtr ' + input_file_name + ' tmp200'+os.path.basename(file)[:-8]+'.nc')
     os.system('cdo -s -L '+remapping_method+',triangular-grid_00_lbc.nc -selname,PS,T,U,V,W,QV,QI,QR,QC,QS,GEOSP,GEOP_ML,DEN,THETA_V,HHL,TRCO2_BG_RA,TRCO2_BG_GPP,TRCO2_BG,TRCO2_BG_A' + ' tmp200'+os.path.basename(file)[:-8]+'.nc ' + output_file_name)
     os.system('ncrename -d cell,ncells ' +output_file_name)
     os.system('ncrename -d nv,vertices ' +output_file_name)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     args1 =  l[0].split()
     #args =  datalist.split()
     with Pool(12) as pool:
-        M = list(pool.map(remap_00_lbc, args1)) 
+        M = list(pool.map(remap_00_lbc, args1[:-1])) 
 
 
 
